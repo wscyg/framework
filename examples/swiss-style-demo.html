@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Attention 机制的演化史</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- KaTeX for math -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+    <style>
+        /* ===== 基础样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --c-paper: #f2f2f0;
+            --c-ink: #050505;
+            --c-accent: #002fa7;
+            --c-accent-light: #668cff;
+            --c-grid: #e0e0e0;
+            --text-primary: #050505;
+            --text-secondary: #444;
+            --text-muted: #666;
+            --orange: #f97316;
+            --violet: #8b5cf6;
+            --emerald: #10b981;
+            --cyan: #06b6d4;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--c-ink);
+            background: var(--c-paper);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== 网格背景 ===== */
+        .grid-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(var(--c-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--c-grid) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.4;
+        }
+
+        /* ===== 进度条 ===== */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            z-index: 9999;
+            background: var(--c-accent);
+            width: 0%;
+            transition: width 0.15s;
+        }
+
+        /* ===== 导航栏 ===== */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 900;
+            background: var(--c-paper);
+            border-bottom: 2px solid var(--c-ink);
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 0px var(--c-accent);
+        }
+
+        .top-nav-brand {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--c-ink);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .top-nav-brand span {
+            color: var(--orange);
+        }
+
+        .top-nav-links {
+            display: flex;
+            gap: 1.2rem;
+        }
+
+        .top-nav-links a {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+
+        .top-nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* ===== 主内容区 ===== */
+        main {
+            position: relative;
+            z-index: 10;
+            padding-top: 60px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 5rem 0 4rem;
+            position: relative;
+        }
+
+        /* ===== 标题样式 ===== */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', 'Noto Serif SC', serif;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin: 3rem 0 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ===== Section Label ===== */
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--c-accent);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            border: 2px solid var(--c-ink);
+            padding: 4px 12px;
+            background: var(--c-paper);
+        }
+
+        .section-label::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--c-accent);
+        }
+
+        /* ===== Hero Section ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .hero-lead {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .num {
+            font-size: 3rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .hero-stat .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* ===== 卡片组件 ===== */
+        .sk-tldr {
+            background: rgba(139, 92, 246, 0.06);
+            border-left: 3px solid var(--violet);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .sk-tldr-title {
+            font-weight: 600;
+            color: var(--violet);
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sk-tldr p {
+            margin-bottom: 0.5rem;
+        }
+
+        .sk-callout {
+            background: rgba(6, 182, 212, 0.06);
+            border-left: 3px solid var(--cyan);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .sk-callout-title {
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 0.8rem;
+        }
+
+        .sk-callout-success {
+            background: rgba(16, 185, 129, 0.06);
+            border-left: 3px solid var(--emerald);
+        }
+
+        .sk-callout-success .sk-callout-title {
+            color: var(--emerald);
+        }
+
+        /* ===== 对比网格 ===== */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .compare-card {
+            background: white;
+            border: 1px solid var(--c-grid);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .compare-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .compare-card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        /* ===== 数学公式块 ===== */
+        .sk-math-block {
+            background: white;
+            border: 1px solid var(--c-grid);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .sk-math-label {
+            font-weight: 600;
+            color: var(--c-accent);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .sk-math-block pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #666;
+            overflow-x: auto;
+        }
+
+        .sk-formula {
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* ===== 代码样式 ===== */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f0f0f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--c-accent);
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 网格背景 -->
+<div class="grid-layer"></div>
+
+<!-- 进度条 -->
+<div id="progressBar"></div>
+
+<!-- 导航栏 -->
+<nav class="top-nav">
+    <div class="top-nav-brand">手撕 Transformer · <span>CH.5</span></div>
+    <div class="top-nav-links">
+        <a href="#s0">Hero</a>
+        <a href="#s1">会议室比喻</a>
+        <a href="#s2">Self-Attention</a>
+        <a href="#s3">Multi-Head</a>
+        <a href="#s4">FFN</a>
+        <a href="#s5">Mask</a>
+        <a href="#s6">完整架构</a>
+    </div>
+</nav>
+
+<main>
+
+    <!-- Hero Section -->
+    <section class="hero" id="s0">
+        <div class="container">
+            <h1>会议室里的 Transformer</h1>
+            <p class="hero-lead">
+                理解 Transformer 不需要死记硬背公式。想象一个多轮会议：每个词是参会者，Query 是问题，Key 是专业标签，Value 是资料。
+                <strong>多头注意力就是同时开8个平行会议，每个讨论不同话题</strong>。
+            </p>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="num" style="color:#8b5cf6">8</span>
+                    <span class="label">个核心组件</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="num" style="color:#06b6d4">3</span>
+                    <span class="label">种注意力机制</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="num" style="color:#10b981">6</span>
+                    <span class="label">层Encoder</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="num" style="color:#f59e0b">6</span>
+                    <span class="label">层Decoder</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 1 -->
+    <section id="s1" style="border-top:1px solid var(--c-grid)">
+        <div class="container">
+            <div class="section-label">§1 · 会议室比喻</div>
+            <h2>把 Transformer 想象成一个多轮会议</h2>
+
+            <div class="sk-tldr">
+                <div class="sk-tldr-title">核心比喻</div>
+                <p><strong>每个词</strong> = 一个参会者</p>
+                <p><strong>Query</strong> = 这个人想问的问题</p>
+                <p><strong>Key</strong> = 这个人的专业标签</p>
+                <p><strong>Value</strong> = 这个人手里的资料</p>
+                <p><strong>Attention</strong> = 根据问题-专业匹配度决定听谁</p>
+                <p><strong>多头</strong> = 同时开 8 个平行会议</p>
+            </div>
+
+            <h3>完整会议流程</h3>
+
+            <div class="compare-grid">
+                <div class="compare-card">
+                    <div class="compare-card-title">🏢 Encoder：源语言专家组</div>
+                    <p>中文专家们内部讨论「我爱北京天安门」的含义，每个词都能听到其他所有词的发言（双向注意力）。</p>
+                </div>
+
+                <div class="compare-card">
+                    <div class="compare-card-title">🎯 Decoder：目标语言生成组</div>
+                    <p>英文专家们逐词生成翻译，只能看到已生成的词（单向注意力），同时参考中文专家组的讨论结果（交叉注意力）。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2 -->
+    <section id="s2" style="border-top:1px solid var(--c-grid)">
+        <div class="container">
+            <div class="section-label">§2 · 组件A</div>
+            <h2>Self-Attention：每个词从所有词借信息</h2>
+
+            <div class="sk-tldr">
+                <div class="sk-tldr-title">人话定义</div>
+                <p>每个词根据「内容相似度」从所有词借信息，生成融合了全局上下文的新表示。</p>
+            </div>
+
+            <h3>几何直觉：4个词的完整流程</h3>
+
+            <div class="sk-math-block">
+                <div class="sk-math-label">输入：4个词的向量</div>
+                <pre>X = [x₁, x₂, x₃, x₄]  形状 (4, d_model)
+    「我」「爱」「北京」「天安门」
+
+<strong style="color:#002fa7">Step 1：生成三套投影</strong>
+Q = X · Wq  →  [q₁, q₂, q₃, q₄]  每个词的「问题」
+K = X · Wk  →  [k₁, k₂, k₃, k₄]  每个词的「标签」
+V = X · Wv  →  [v₁, v₂, v₃, v₄]  每个词的「内容」
+
+<strong style="color:#002fa7">Step 2：计算「谁关注谁」</strong>
+Scores = Q · K^T / √d_k  →  4×4 矩阵
+
+<strong style="color:#002fa7">Step 3：Softmax 归一化</strong>
+每行和 = 1
+
+<strong style="color:#002fa7">Step 4：加权求和</strong>
+Output = Attention_Weights · V</pre>
+            </div>
+
+            <h3>形式化公式</h3>
+
+            <div class="sk-math-block">
+                <div class="sk-formula">
+                    $$\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q \cdot K^T}{\sqrt{d_k}}\right) \cdot V$$
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section id="s3" style="border-top:1px solid var(--c-grid)">
+        <div class="container">
+            <div class="section-label">§3 · 组件B</div>
+            <h2>Multi-Head Attention：同时开8个平行会议</h2>
+
+            <div class="sk-tldr">
+                <div class="sk-tldr-title">人话定义</div>
+                <p>把向量空间拆成 h 个子空间，每个子空间独立做注意力，最后拼回来。</p>
+            </div>
+
+            <h3>为什么需要多头？</h3>
+
+            <div class="compare-grid">
+                <div class="compare-card">
+                    <div class="compare-card-title">Head 1：语法关系</div>
+                    <p>「爱」关注「我」（主谓关系）</p>
+                </div>
+
+                <div class="compare-card">
+                    <div class="compare-card-title">Head 2：语义关系</div>
+                    <p>「天安门」关注「北京」（地理关系）</p>
+                </div>
+
+                <div class="compare-card">
+                    <div class="compare-card-title">Head 3：词性关系</div>
+                    <p>动词关注动词，名词关注名词</p>
+                </div>
+
+                <div class="compare-card">
+                    <div class="compare-card-title">Head 4-8：其他模式</div>
+                    <p>发现更多隐藏的语言模式</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4 -->
+    <section id="s4" style="border-top:1px solid var(--c-grid)">
+        <div class="container">
+            <div class="section-label">§4 · 组件C</div>
+            <h2>Feed-Forward Network & Layer Normalization</h2>
+
+            <div class="sk-tldr">
+                <div class="sk-tldr-title">人话定义</div>
+                <p><strong>FFN</strong>：对每个词独立做非线性变换，增强表达能力</p>
+                <p><strong>Layer Norm</strong>：归一化每个词的向量，稳定训练</p>
+            </div>
+
+            <h3>FFN：两层全连接网络</h3>
+
+            <div class="sk-math-block">
+                <div class="sk-formula">
+                    $$\text{FFN}(x) = \text{ReLU}(x \cdot W_1 + b_1) \cdot W_2 + b_2$$
+                </div>
+            </div>
+
+            <p style="margin-top:1rem;">
+                通常中间层维度是 4 倍的 d_model（例如 512 → 2048 → 512）
+            </p>
+        </div>
+    </section>
+
+    <!-- Section 5 -->
+    <section id="s5" style="border-top:1px solid var(--c-grid)">
+        <div class="container">
+            <div class="section-label">§5 · 组件D</div>
+            <h2>Causal Mask & Cross-Attention</h2>
+
+            <div class="sk-tldr">
+                <div class="sk-tldr-title">人话定义</div>
+                <p><strong>Causal Mask</strong>：Decoder 生成时只能看到已生成的词</p>
+                <p><strong>Cross-Attention</strong>：Decoder 参考 Encoder 的输出</p>
+            </div>
+
+            <h3>Causal Mask 示意</h3>
+
+            <div class="sk-math-block">
+                <pre>生成「I love」时的注意力矩阵：
+
+       I    love   ?     ?
+  I  [ ✓    ✗     ✗     ✗  ]
+love [ ✓    ✓     ✗     ✗  ]
+  ?  [ ✗    ✗     ✗     ✗  ]
+  ?  [ ✗    ✗     ✗     ✗  ]
+
+✓ = 可以看到
+✗ = 被mask掉</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6 -->
+    <section id="s6" style="border-top:1px solid var(--c-grid)">
+        <div class="container">
+            <div class="section-label">§6 · 完整架构</div>
+            <h2>Transformer 完整数据流</h2>
+
+            <div class="sk-tldr">
+                <div class="sk-tldr-title">完整流程</div>
+                <p>1. <strong>Embedding + 位置编码</strong> → 词ID变成向量</p>
+                <p>2. <strong>Encoder (6层)</strong> → 理解源语言</p>
+                <p>3. <strong>Decoder (6层)</strong> → 生成目标语言</p>
+                <p>4. <strong>输出层</strong> → 向量变成词ID</p>
+            </div>
+
+            <h3>每一层的结构</h3>
+
+            <div class="compare-grid">
+                <div class="compare-card">
+                    <div class="compare-card-title">Encoder Layer</div>
+                    <p>1. Multi-Head Self-Attention</p>
+                    <p>2. Add & Norm</p>
+                    <p>3. Feed-Forward Network</p>
+                    <p>4. Add & Norm</p>
+                </div>
+
+                <div class="compare-card">
+                    <div class="compare-card-title">Decoder Layer</div>
+                    <p>1. Masked Multi-Head Self-Attention</p>
+                    <p>2. Add & Norm</p>
+                    <p>3. Multi-Head Cross-Attention</p>
+                    <p>4. Add & Norm</p>
+                    <p>5. Feed-Forward Network</p>
+                    <p>6. Add & Norm</p>
+                </div>
+            </div>
+
+            <div class="sk-callout sk-callout-success" style="margin-top:3rem">
+                <div>
+                    <div class="sk-callout-title">🎉 恭喜！你已经理解了 Transformer 的核心机制</div>
+                    <p>
+                        现在你应该能够：<br>
+                        ✓ 用会议室比喻解释 Attention 机制<br>
+                        ✓ 理解 Q、K、V 的作用<br>
+                        ✓ 知道为什么需要多头注意力<br>
+                        ✓ 明白 Encoder 和 Decoder 的区别<br>
+                        ✓ 在脑中"运行"一个完整的前向传播
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- KaTeX -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<script>
+// 进度条
+window.addEventListener('scroll', () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.getElementById('progressBar').style.width = scrolled + '%';
+});
+
+// KaTeX 渲染
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+
+</body>
+</html>

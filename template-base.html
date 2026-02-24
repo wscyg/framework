@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}}</title>
+    
+    <!-- Framework CSS - All styles from framework -->
+    <link rel="stylesheet" href="framework/css/aurafx.min.css">
+    <link rel="stylesheet" href="framework/css/swiss-extensions.min.css">
+    <link rel="stylesheet" href="framework/css/educational-components.min.css">
+    
+    <!-- KaTeX for Math -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+</head>
+<body>
+
+<!-- Background Layers -->
+<div class="grid-layer"></div>
+<div class="grain-layer"></div>
+
+<!-- Cursor System -->
+<div id="cursor-system">
+    <div class="cursor-crosshair"></div>
+</div>
+
+<!-- Progress Bar -->
+<div id="progressBar"></div>
+
+<!-- Navigation -->
+<nav class="top-nav">
+    <div class="top-nav-brand">{{NAV_BRAND}}</div>
+    <div class="top-nav-links">
+        {{NAV_LINKS}}
+    </div>
+</nav>
+
+<main>
+    {{CONTENT}}
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+    <p>{{FOOTER_TEXT}}</p>
+    <p><a href="#s0">回到顶部 ↑</a></p>
+</footer>
+
+<!-- Framework JS -->
+<script src="framework/js/aurafx.min.js"></script>
+<script src="framework/js/swiss-extensions.min.js"></script>
+
+<!-- KaTeX -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<!-- Framework Auto-init -->
+<script>
+// KaTeX rendering
+window.addEventListener('load', function() {
+    if (typeof renderMathInElement !== 'undefined') {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+            ],
+            throwOnError: false
+        });
+    }
+});
+
+// Progress bar
+window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+});
+</script>
+
+{{CUSTOM_SCRIPTS}}
+
+</body>
+</html>

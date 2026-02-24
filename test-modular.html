@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块化测试 - Core + Effects</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 进度条 */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+            width: 0%;
+            z-index: 9999;
+            transition: width 0.2s;
+        }
+
+        /* 导航栏 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            transition: box-shadow 0.3s;
+        }
+
+        .top-nav.scrolled {
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .top-nav-brand {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* Hero区域 */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        #heroParticles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+
+        /* Canvas背景 */
+        #flow-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 主内容 */
+        main {
+            position: relative;
+            z-index: 10;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin: 4rem 0;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #8b5cf6;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Spotlight卡片 */
+        .card-spot {
+            position: relative;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin: 1rem 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .card-spot:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-spot::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                600px circle at var(--mx, 50%) var(--my, 50%),
+                rgba(139, 92, 246, 0.15),
+                transparent 40%
+            );
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card-spot:hover::before {
+            opacity: 1;
+        }
+
+        /* 按钮 */
+        button {
+            padding: 0.75rem 1.5rem;
+            margin: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Reveal动画 */
+        .rv {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s, transform 0.6s;
+        }
+
+        .rv.vis {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 视差元素 */
+        [data-parallax] {
+            will-change: transform;
+        }
+
+        /* 占位内容 */
+        .spacer {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Canvas粒子背景 -->
+<canvas id="flow-canvas"></canvas>
+
+<!-- 进度条 -->
+<div id="progressBar"></div>
+
+<!-- 导航栏 -->
+<nav class="top-nav">
+    <div class="top-nav-brand">AuraFX 模块化测试</div>
+</nav>
+
+<!-- Hero区域 -->
+<section class="hero">
+    <canvas id="heroParticles"></canvas>
+    <div class="hero-content">
+        <h1>模块化框架测试</h1>
+        <p>Core + Effects 独立加载</p>
+    </div>
+</section>
+
+<!-- 主内容 -->
+<main>
+
+    <section class="rv">
+        <h2>✓ 已加载模块</h2>
+        <p>本页面加载了两个独立模块：</p>
+        <ul style="list-style: none; padding: 0;">
+            <li style="padding: 0.5rem 0;">📦 <strong>aurafx.core.js</strong> - 核心功能（Toast, Modal, Tabs等）</li>
+            <li style="padding: 0.5rem 0;">✨ <strong>aurafx.effects.js</strong> - 视觉特效（Canvas粒子, Spotlight等）</li>
+        </ul>
+    </section>
+
+    <section class="rv">
+        <h2>🎨 Spotlight Cards</h2>
+        <p>鼠标移动到卡片上查看光效：</p>
+
+        <div class="card-spot">
+            <h3>卡片 1</h3>
+            <p>这是一个带有鼠标跟随光效的卡片。</p>
+        </div>
+
+        <div class="card-spot">
+            <h3>卡片 2</h3>
+            <p>移动鼠标查看光晕效果。</p>
+        </div>
+
+        <div class="card-spot">
+            <h3>卡片 3</h3>
+            <p>每个卡片都有独立的光效追踪。</p>
+        </div>
+    </section>
+
+    <section class="rv">
+        <h2>🔔 Toast 通知系统</h2>
+        <p>测试核心模块的Toast功能：</p>
+        <button onclick="AuraFX.toast({tone:'info', title:'Info', desc:'这是一个信息提示'})">Info Toast</button>
+        <button onclick="AuraFX.toast({tone:'success', title:'Success', desc:'操作成功！'})">Success Toast</button>
+        <button onclick="AuraFX.toast({tone:'error', title:'Error', desc:'发生错误'})">Error Toast</button>
+    </section>
+
+    <section class="rv">
+        <h2>📊 性能优化</h2>
+        <p>本框架包含以下性能优化：</p>
+        <ul style="line-height: 2;">
+            <li>✓ Canvas粒子每2帧渲染一次</li>
+            <li>✓ 页面不可见时自动暂停动画</li>
+            <li>✓ 尊重 prefers-reduced-motion</li>
+            <li>✓ 移动端减少粒子数量</li>
+            <li>✓ 滚动事件使用 rAF 防抖</li>
+            <li>✓ 连线距离使用平方比较（避免sqrt）</li>
+        </ul>
+    </section>
+
+    <section class="rv">
+        <h2>🎯 Reveal 动画</h2>
+        <p>所有带 .rv 类的元素会在滚动到视口时显示。</p>
+    </section>
+
+    <div class="spacer rv">
+        继续向下滚动...
+    </div>
+
+    <section class="rv">
+        <h2>🚀 模块化优势</h2>
+        <div class="card-spot">
+            <h3>按需加载</h3>
+            <p>只需要核心功能？只引入 aurafx.core.js</p>
+            <p>需要视觉特效？再加上 aurafx.effects.js</p>
+        </div>
+
+        <div class="card-spot">
+            <h3>独立维护</h3>
+            <p>每个模块可以独立更新和测试</p>
+            <p>不会因为特效bug影响核心功能</p>
+        </div>
+
+        <div class="card-spot">
+            <h3>性能优化</h3>
+            <p>减少不必要的代码加载</p>
+            <p>提升首屏加载速度</p>
+        </div>
+    </section>
+
+</main>
+
+<!-- 引入框架 - 模块化加载 -->
+<script src="js/aurafx.core.js"></script>
+<script src="js/aurafx.effects.js"></script>
+
+<script>
+// 验证模块加载
+console.log('AuraFX version:', AuraFX.version);
+console.log('Available modules:', Object.keys(AuraFX));
+</script>
+
+</body>
+</html>

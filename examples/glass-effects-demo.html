@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>玻璃态与特效演示 - AuraFX</title>
+
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@500;600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- AuraFX 框架 -->
+    <link rel="stylesheet" href="../css/aurafx.css">
+    <link rel="stylesheet" href="../css/glass-effects-extensions.css">
+</head>
+
+<body>
+<!-- 玻璃态背景 -->
+<div class="bg-container">
+    <div class="glass-orb glass-orb-1"></div>
+    <div class="glass-orb glass-orb-2"></div>
+    <div class="glass-orb glass-orb-3"></div>
+</div>
+
+<!-- 导航栏 -->
+<nav class="nav" id="nav">
+    <div class="nav-inner">
+        <div class="nav-brand">玻璃态特效</div>
+        <button class="toggle-pill" id="themeBtn" data-af="theme-toggle">
+            <span class="t-cap" id="themeLabel">Light</span>
+            <span class="switch"></span>
+        </button>
+    </div>
+</nav>
+
+<!-- 主内容 -->
+<section class="section minh-100 pt-nav">
+    <div class="wrap">
+        <!-- Hero -->
+        <div class="rv text-center mb-32">
+            <h1 class="t-d mb-16">
+                <span class="typing-text" data-text="玻璃态特效"></span>
+                <span class="typing-cursor"></span>
+            </h1>
+            <p class="t-body mw-680 mx-auto">
+                <span class="typing-text" data-text="现代化的玻璃态设计与动画特效" data-delay="600"></span>
+                <span class="typing-cursor"></span>
+            </p>
+        </div>
+
+        <!-- 玻璃卡片 -->
+        <div class="cards-grid mt-32">
+            <div class="glass-card" data-delay="0">
+                <div class="card-icon q">1</div>
+                <h3 class="card-title">打字机效果</h3>
+                <p class="card-subtitle">预占位 + 光标跟随</p>
+                <p class="card-text">防止布局抖动，随机速度模拟真实打字</p>
+            </div>
+            <div class="glass-card" data-delay="150">
+                <div class="card-icon k">2</div>
+                <h3 class="card-title">便签卡片</h3>
+                <p class="card-subtitle">飞入动画 + 图钉效果</p>
+                <p class="card-text">旋转角度，折角效果，手写字体</p>
+            </div>
+            <div class="glass-card" data-delay="300">
+                <div class="card-icon v">3</div>
+                <h3 class="card-title">玻璃态背景</h3>
+                <p class="card-subtitle">浮动光球动画</p>
+                <p class="card-text">3个光球，25秒循环，硬件加速</p>
+            </div>
+        </div>
+
+        <!-- 公式框 -->
+        <div class="formula-box mt-32">
+            <div class="formula-label">核心公式</div>
+            <div class="formula-main">
+                Attention(<span class="highlight-q">Q</span>, <span class="highlight-k">K</span>, <span class="highlight-v">V</span>) = softmax(<span class="highlight-q">Q</span><span class="highlight-k">K</span><sup>T</sup> / √d<sub>k</sub>) · <span class="highlight-v">V</span>
+            </div>
+            <p class="formula-desc">缩放点积注意力机制</p>
+        </div>
+
+        <!-- 便签卡片 -->
+        <div class="sticky-note yellow" data-delay="400">
+            <div class="sticky-title">黄色便签</div>
+            <p class="sticky-text">这是一个带图钉和折角效果的便签卡片，使用手写字体，旋转 -1.5 度</p>
+        </div>
+
+        <div class="sticky-note pink" data-delay="600">
+            <div class="sticky-title">粉色便签</div>
+            <p class="sticky-text">便签会从右侧飞入，带有弹性动画效果，旋转 1.5 度</p>
+        </div>
+
+        <div class="sticky-note blue" data-delay="800">
+            <div class="sticky-title">蓝色便签</div>
+            <p class="sticky-text">支持多种颜色：yellow, pink, blue, green, purple</p>
+        </div>
+
+        <!-- 统计行 -->
+        <div class="stats-row mt-32">
+            <div class="stat-item" data-delay="0">
+                <div class="stat-value">60</div>
+                <div class="stat-label">FPS 帧率</div>
+            </div>
+            <div class="stat-item" data-delay="100">
+                <div class="stat-value">800</div>
+                <div class="stat-label">动画时长 ms</div>
+            </div>
+            <div class="stat-item" data-delay="200">
+                <div class="stat-value">25</div>
+                <div class="stat-label">光球周期 s</div>
+            </div>
+            <div class="stat-item" data-delay="300">
+                <div class="stat-value">100</div>
+                <div class="stat-label">响应式 %</div>
+            </div>
+        </div>
+
+        <!-- 多头卡片 -->
+        <div class="heads-grid mt-32">
+            <div class="head-card" data-delay="0">
+                <div class="head-number">H1</div>
+                <h4 class="head-title">句法结构</h4>
+                <p class="head-desc">主谓宾语法关系</p>
+            </div>
+            <div class="head-card" data-delay="100">
+                <div class="head-number">H2</div>
+                <h4 class="head-title">指代消解</h4>
+                <p class="head-desc">代词与实体关系</p>
+            </div>
+            <div class="head-card" data-delay="200">
+                <div class="head-number">H3</div>
+                <h4 class="head-title">语义关联</h4>
+                <p class="head-desc">同义近义联系</p>
+            </div>
+            <div class="head-card" data-delay="300">
+                <div class="head-number">H4</div>
+                <h4 class="head-title">位置模式</h4>
+                <p class="head-desc">局部全局依赖</p>
+            </div>
+        </div>
+
+        <!-- 应用卡片 -->
+        <div class="apps-grid mt-32">
+            <div class="app-card" data-delay="0">
+                <div class="app-icon nlp">NL</div>
+                <div class="app-content">
+                    <h3>自然语言处理</h3>
+                    <p>BERT 双向理解，GPT 强大生成，Transformer 改变 NLP</p>
+                    <div class="app-tags">
+                        <span class="app-tag">翻译</span>
+                        <span class="app-tag">生成</span>
+                        <span class="app-tag">问答</span>
+                    </div>
+                </div>
+            </div>
+            <div class="app-card" data-delay="100">
+                <div class="app-icon vision">CV</div>
+                <div class="app-content">
+                    <h3>计算机视觉</h3>
+                    <p>ViT 证明纯注意力可媲美 CNN，开启视觉 Transformer 时代</p>
+                    <div class="app-tags">
+                        <span class="app-tag">分类</span>
+                        <span class="app-tag">检测</span>
+                        <span class="app-tag">生成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线 -->
+        <div class="timeline mt-32">
+            <div class="timeline-item" data-delay="0">
+                <span class="timeline-year">2014</span>
+                <h4 class="timeline-title">Bahdanau 注意力</h4>
+                <p class="timeline-desc">首次在神经机器翻译中引入，解码器可动态关注编码器不同部分</p>
+            </div>
+            <div class="timeline-item" data-delay="150">
+                <span class="timeline-year">2017</span>
+                <h4 class="timeline-title">Transformer 诞生</h4>
+                <p class="timeline-desc">"Attention Is All You Need"——纯注意力架构，摒弃循环，开创新纪元</p>
+            </div>
+            <div class="timeline-item" data-delay="300">
+                <span class="timeline-year">2018-2020</span>
+                <h4 class="timeline-title">BERT & GPT 时代</h4>
+                <p class="timeline-desc">预训练爆发，BERT 双向理解，GPT 推动生成式 AI 革命</p>
+            </div>
+        </div>
+
+        <!-- 比较表格 -->
+        <table class="comparison-table mt-32">
+            <thead>
+                <tr>
+                    <th>类型</th>
+                    <th>Query 来源</th>
+                    <th>Key/Value 来源</th>
+                    <th>应用</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="table-highlight">自注意力</span></td>
+                    <td>输入本身</td>
+                    <td>输入本身</td>
+                    <td>BERT, GPT, ViT</td>
+                </tr>
+                <tr>
+                    <td><span class="table-highlight">交叉注意力</span></td>
+                    <td>解码器</td>
+                    <td>编码器</td>
+                    <td>翻译, 图文生成</td>
+                </tr>
+                <tr>
+                    <td><span class="table-highlight">因果注意力</span></td>
+                    <td>当前及之前</td>
+                    <td>当前及之前</td>
+                    <td>GPT, 语言生成</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+<!-- Toast 容器 -->
+<div class="toast-root" id="toastRoot"></div>
+
+<!-- AuraFX 框架 JS -->
+<script src="../js/aurafx.js"></script>
+<script src="../js/glass-effects-extensions.js"></script>
+</body>
+</html>

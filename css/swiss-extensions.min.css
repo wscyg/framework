@@ -1,0 +1,830 @@
+/* ==========================================
+ * SWISS ARCHITECTURAL EXTENSIONS
+ * 瑞士建筑风格扩展 - 融入 AuraFX
+ * ==========================================
+ */
+
+/* === 瑞士设计 Token === */
+:root {
+    /* Klein Blue - 克莱因蓝（唯一色彩强调） */
+    --swiss-accent: #002fa7;
+    --swiss-grid: #e0e0e0;
+    --swiss-paper: #f2f2f0;
+
+    /* 网格系统 */
+    --swiss-grid-size: 40px;
+    --swiss-border: 1.5px;
+
+    /* 瑞士缓动 */
+    --ease-snap: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* === 网格背景层 === */
+.grid-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(var(--swiss-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--swiss-grid) 1px, transparent 1px);
+    background-size: var(--swiss-grid-size) var(--swiss-grid-size);
+    opacity: 0.6;
+}
+
+/* === 颗粒纹理层 === */
+.grain-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+}
+
+/* === 自定义光标（十字准星 + 反色）=== */
+#cursor-system {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    pointer-events: none;
+    mix-blend-mode: difference;
+}
+
+.cursor-crosshair {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);
+}
+
+.cursor-crosshair::before,
+.cursor-crosshair::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.cursor-crosshair::before {
+    width: 100%;
+    height: 1px;
+}
+
+.cursor-crosshair::after {
+    width: 1px;
+    height: 100%;
+}
+
+.cursor-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s;
+}
+
+body.hovering .cursor-dot {
+    transform: translate(-50%, -50%) scale(4);
+}
+
+body.hovering .cursor-crosshair {
+    opacity: 0;
+}
+
+/* === 蓝图卡片（硬阴影）=== */
+.blueprint-card {
+    background: var(--bg);
+    border: var(--swiss-border) solid var(--ink);
+    padding: 32px;
+    position: relative;
+    box-shadow: 8px 8px 0px var(--swiss-accent);
+    transition: all 0.3s var(--ease-snap);
+}
+
+.blueprint-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px var(--ink);
+}
+
+/* === 符号盒子 === */
+.symbol-box {
+    width: 60px;
+    height: 60px;
+    border: var(--swiss-border) solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-style: italic;
+    margin-bottom: 20px;
+    background: #fff;
+}
+
+.card-active .symbol-box {
+    background: var(--swiss-accent);
+    color: #fff;
+    border-color: var(--swiss-accent);
+}
+
+/* === 技术分割线 === */
+.tech-line {
+    width: 100%;
+    height: 1px;
+    background: var(--ink);
+    margin: 20px 0;
+    opacity: 0.2;
+}
+
+/* === 建筑风格按钮 === */
+.btn-arch {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 16px 32px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.btn-arch:hover {
+    background: var(--swiss-accent);
+    transform: translateY(-2px);
+}
+
+.btn-arch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid #fff;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.btn-arch:hover::after {
+    opacity: 0.5;
+}
+
+/* === 图表盒子（蓝图风格）=== */
+.diagram-box {
+    background: #fff;
+    border: var(--swiss-border) solid var(--ink);
+    padding: 40px;
+    position: relative;
+}
+
+/* 内部网格背景 */
+.diagram-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: radial-gradient(var(--swiss-accent) 1px, transparent 1px);
+    background-size: 10px 10px;
+    pointer-events: none;
+}
+
+/* === 代码纸张 === */
+
+/* ==========================================
+ * LAYOUT COMPONENTS
+ * 布局组件 - Hero, Navigation, Sections
+ * ==========================================
+ */
+
+/* === Progress Bar === */
+#progressBar, #prog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    z-index: 9999;
+    background: var(--swiss-accent);
+    width: 0%;
+    transition: width 0.15s;
+}
+
+/* === Navigation === */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    background: var(--swiss-paper);
+    border-bottom: 2px solid var(--ink, #050505);
+    padding: 0.7rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 0px var(--swiss-accent);
+    transition: all 0.3s;
+}
+
+.top-nav-brand {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.78rem;
+    color: var(--ink, #050505);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.top-nav-brand span {
+    color: #f97316;
+}
+
+.top-nav-links {
+    display: flex;
+    gap: 1.2rem;
+}
+
+.top-nav-links a {
+    font-size: 0.75rem;
+    color: #666;
+    transition: color 0.2s;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.top-nav-links a:hover {
+    color: var(--ink, #050505);
+}
+
+/* === Sections === */
+section {
+    padding: 5rem 0 4rem;
+}
+
+.section-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    color: var(--swiss-accent);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: 2px solid var(--ink, #050505);
+    padding: 4px 12px;
+    background: var(--swiss-paper);
+}
+
+.section-label::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--swiss-accent);
+}
+
+section h2 {
+    font-family: var(--font-serif, serif);
+    font-size: 2.8rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+    color: var(--ink, #050505);
+    letter-spacing: -0.02em;
+}
+
+section h3 {
+    font-family: var(--font-serif, serif);
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 3rem 0 1rem;
+    color: var(--ink, #050505);
+    letter-spacing: -0.01em;
+}
+
+section p {
+    color: #444;
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+/* === Hero Section === */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 6rem 0 4rem;
+    background: var(--swiss-paper);
+}
+
+.hero-blueprint {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 90%;
+    max-width: 1400px;
+    height: 80%;
+    border: var(--swiss-border) solid var(--swiss-grid);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-blueprint::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--swiss-accent) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.1;
+}
+
+.tech-label {
+    position: absolute;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.65rem;
+    color: var(--swiss-accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 1px solid var(--swiss-accent);
+    background: var(--swiss-paper);
+    z-index: 1;
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.tech-label-1 { top: 15%; left: 5%; animation-delay: 0.5s; }
+.tech-label-2 { top: 25%; right: 8%; animation-delay: 0.8s; }
+.tech-label-3 { bottom: 20%; left: 10%; animation-delay: 1.1s; }
+.tech-label-4 { bottom: 15%; right: 12%; animation-delay: 1.4s; }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    background: #fff;
+    border: 2px solid var(--ink, #050505);
+    padding: 4rem;
+    box-shadow: 12px 12px 0px var(--swiss-accent);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero-eyebrow {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    border: 1px solid var(--ink, #050505);
+    padding: 4px 12px;
+    background: var(--swiss-paper);
+}
+
+.ch-tag {
+    color: #fff;
+    background: var(--swiss-accent);
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.ch-text {
+    color: var(--ink, #050505);
+}
+
+.hero h1 {
+    font-family: var(--font-serif, serif);
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 0.95;
+    margin-bottom: 2rem;
+    letter-spacing: -0.04em;
+    color: var(--ink, #050505);
+}
+
+.hero h1 .line-1 {
+    display: block;
+    color: var(--ink, #050505);
+}
+
+.hero h1 .line-2 {
+    display: block;
+    color: var(--swiss-accent);
+    font-style: italic;
+}
+
+.hero h1 .line-3 {
+    display: block;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: #666;
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 0.8rem;
+}
+
+.hero-lead {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: #444;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--swiss-accent);
+}
+
+.hero-lead strong {
+    color: var(--swiss-accent);
+    font-weight: 600;
+}
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.hero-stat {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid var(--swiss-grid);
+    background: var(--swiss-paper);
+}
+
+.hero-stat .num {
+    display: block;
+    font-family: var(--font-mono, monospace);
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.hero-stat .label {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.hero-slogan {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(0,47,167,0.05), rgba(139,92,246,0.05));
+    border-left: 4px solid var(--swiss-accent);
+    border-radius: 8px;
+}
+
+.hero-slogan blockquote {
+    font-family: var(--font-serif, serif);
+    font-size: 1.5rem;
+    font-style: italic;
+    color: var(--swiss-accent);
+    margin: 0 0 1rem 0;
+    line-height: 1.6;
+}
+
+.slogan-sub {
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.8;
+    position: relative;
+    font-family: var(--font-mono, monospace);
+    padding-left: 1.5rem;
+}
+
+.slogan-sub::before {
+    content: '//';
+    position: absolute;
+    left: 0;
+    color: var(--swiss-accent);
+    font-weight: 700;
+}
+
+/* === Footer === */
+.site-footer {
+    padding: 3rem 0;
+    text-align: center;
+    border-top: 2px solid var(--swiss-grid);
+    background: var(--swiss-paper);
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.site-footer a {
+    color: var(--swiss-accent);
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+/* === 代码纸张 === */
+.code-sheet {
+    background: #fff;
+    border-left: 4px solid var(--swiss-accent);
+    padding: 30px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: #333;
+    box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.interactive-line {
+    padding: 0 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: block;
+    position: relative;
+}
+
+.interactive-line:hover,
+.interactive-line.active {
+    background: rgba(0, 47, 167, 0.1);
+    color: var(--swiss-accent);
+    font-weight: 600;
+}
+
+.interactive-line.active::before {
+    content: '>';
+    position: absolute;
+    left: -15px;
+    color: var(--swiss-accent);
+}
+
+/* === 沙盒面板（实验室风格）=== */
+.sandbox-panel {
+    border: var(--swiss-border) solid var(--ink);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.sandbox-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    background: #f8f8f8;
+}
+
+.token-word {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.token-word:hover,
+.token-word.active {
+    border-color: var(--swiss-accent);
+    color: var(--swiss-accent);
+    background: rgba(0, 47, 167, 0.05);
+}
+
+/* === 热力图网格 === */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 1px;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    width: fit-content;
+}
+
+.heat-cell {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    transition: background 0.2s;
+}
+
+/* === 控制面板（导航）=== */
+.control-deck {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.deck-btn {
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border: var(--swiss-border) solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.deck-btn:hover {
+    background: var(--ink);
+    color: #fff;
+}
+
+.deck-btn.active {
+    background: var(--swiss-accent);
+    border-color: var(--swiss-accent);
+    color: #fff;
+}
+
+.deck-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: var(--ink);
+    color: #fff;
+    padding: 4px 8px;
+    position: absolute;
+    right: 60px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.deck-btn:hover + .deck-label {
+    opacity: 1;
+}
+
+/* === 跑马灯容器 === */
+.marquee-container {
+    position: absolute;
+    top: 15%;
+    width: 100%;
+    overflow: hidden;
+    border-top: var(--swiss-border) solid var(--ink);
+    border-bottom: var(--swiss-border) solid var(--ink);
+    background: var(--swiss-paper);
+    padding: 10px 0;
+    transform: rotate(-2deg) scale(1.1);
+    z-index: 0;
+}
+
+.marquee-content {
+    white-space: nowrap;
+    animation: scroll 20s linear infinite;
+    font-family: var(--font-sans);
+    font-size: 8rem;
+    font-weight: 800;
+    color: rgba(0, 0, 0, 0.05);
+    text-transform: uppercase;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* === 全屏滚动视口 === */
+.viewport {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+}
+
+section.slide {
+    height: 100vh;
+    width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 40px;
+    display: grid;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s var(--ease-snap);
+}
+
+section.slide.in-view .container {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* === SVG 样式 === */
+.svg-line {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.svg-node {
+    fill: #fff;
+    stroke: var(--ink);
+    stroke-width: 2;
+}
+
+.svg-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--ink);
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.flow-packet {
+    fill: var(--swiss-accent);
+}
+
+/* === 响应式 === */
+@media (max-width: 900px) {
+    .split,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .headline {
+        font-size: 3rem;
+    }
+
+    .control-deck {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .marquee-content {
+        font-size: 4rem;
+    }
+}
+
+/* === 深色主题适配 === */
+html[data-theme="dark"] .blueprint-card {
+    background: var(--bg);
+    border-color: var(--border);
+    box-shadow: 8px 8px 0px rgba(139, 92, 246, 0.5);
+}
+
+html[data-theme="dark"] .blueprint-card:hover {
+    box-shadow: 12px 12px 0px var(--brand2);
+}
+
+html[data-theme="dark"] .symbol-box {
+    background: var(--bg-elev);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .diagram-box,
+html[data-theme="dark"] .code-sheet,
+html[data-theme="dark"] .sandbox-panel {
+    background: var(--bg-elev);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .deck-btn {
+    background: var(--bg-elev);
+    border-color: var(--border);
+    color: var(--ink);
+}
+
+html[data-theme="dark"] .deck-btn:hover {
+    background: var(--brand);
+    color: #fff;
+}

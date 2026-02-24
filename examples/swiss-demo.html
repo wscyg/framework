@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>瑞士建筑风格演示 - AuraFX</title>
+
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- AuraFX 框架 -->
+    <link rel="stylesheet" href="../css/aurafx.css">
+    <link rel="stylesheet" href="../css/swiss-extensions.css">
+</head>
+
+<body>
+<!-- 背景层 -->
+<div class="grid-layer"></div>
+<div class="grain-layer"></div>
+<canvas id="canvas-flow"></canvas>
+
+<!-- 自定义光标 -->
+<div id="cursor-system">
+    <div class="cursor-crosshair"></div>
+    <div class="cursor-dot"></div>
+</div>
+
+<!-- 控制面板 -->
+<div class="control-deck">
+    <div style="position:relative">
+        <button class="deck-btn hover-target" onclick="scrollToPage(0)">01</button>
+        <div class="deck-label">首页</div>
+    </div>
+    <div style="position:relative">
+        <button class="deck-btn hover-target" onclick="scrollToPage(1)">02</button>
+        <div class="deck-label">卡片</div>
+    </div>
+    <div style="position:relative">
+        <button class="deck-btn hover-target" onclick="scrollToPage(2)">03</button>
+        <div class="deck-label">图表</div>
+    </div>
+</div>
+
+<!-- 滚动视口 -->
+<div class="viewport" id="main-scroll">
+
+    <!-- 页面 0: 首页 -->
+    <section class="slide in-view" id="slide-0">
+        <div class="marquee-container">
+            <div class="marquee-content">AuraFX Swiss Design /// AuraFX Swiss Design /// AuraFX Swiss Design ///</div>
+        </div>
+
+        <div class="container">
+            <div style="background: #fff; border: 2px solid #000; padding: 60px; max-width: 800px; position: relative; z-index: 1;">
+                <div class="mono-label">FIG 1.0 — 介绍</div>
+                <h1 class="headline">
+                    瑞士<em style="color: var(--swiss-accent)">建筑</em><br>风格框架
+                </h1>
+                <div class="tech-line"></div>
+                <div class="split">
+                    <p style="font-size: 1.1rem; color: #444;">
+                        融合瑞士设计的极简主义、网格系统和克莱因蓝色彩。
+                        打造专业、精准、优雅的教学体验。
+                    </p>
+                    <div style="text-align: right;">
+                        <button class="btn-arch hover-target" onclick="scrollToPage(1)">查看组件 &darr;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页面 1: 蓝图卡片 -->
+    <section class="slide" id="slide-1">
+        <div class="container">
+            <div class="mono-label">FIG 2.0 — 蓝图卡片</div>
+            <h2 class="headline" style="font-size: 3rem; margin-bottom: 60px;">硬阴影设计</h2>
+
+            <div class="grid-3">
+                <div class="blueprint-card hover-target">
+                    <div class="symbol-box">Q</div>
+                    <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 10px;">Query</h3>
+                    <p style="font-size: 0.9rem; color: #555;">搜索向量<br>代表当前token寻找上下文</p>
+                    <div class="tech-line" style="margin: 15px 0;"></div>
+                    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--swiss-accent);">TYPE: VECTOR<br>ROLE: SEEKER</div>
+                </div>
+
+                <div class="blueprint-card hover-target card-active">
+                    <div class="symbol-box">K</div>
+                    <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 10px;">Key</h3>
+                    <p style="font-size: 0.9rem; color: #555;">索引向量<br>定义其他token的身份用于匹配</p>
+                    <div class="tech-line" style="margin: 15px 0;"></div>
+                    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--swiss-accent);">TYPE: VECTOR<br>ROLE: IDENTIFIER</div>
+                </div>
+
+                <div class="blueprint-card hover-target">
+                    <div class="symbol-box">V</div>
+                    <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 10px;">Value</h3>
+                    <p style="font-size: 0.9rem; color: #555;">内容向量<br>实际要检索的信息载荷</p>
+                    <div class="tech-line" style="margin: 15px 0;"></div>
+                    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--swiss-accent);">TYPE: VECTOR<br>ROLE: PAYLOAD</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页面 2: 图表 -->
+    <section class="slide" id="slide-2">
+        <div class="container split">
+            <div>
+                <div class="mono-label">FIG 3.0 — 流程图</div>
+                <h2 class="headline" style="font-size: 3rem;">缩放点积</h2>
+                <p style="color: #444; margin-bottom: 30px;">
+                    Transformer的引擎。我们计算Q和K之间的相似度来决定保留多少V。
+                </p>
+                <button class="btn-arch hover-target" id="btn-pulse">脉冲信号</button>
+            </div>
+
+            <div class="diagram-box hover-target">
+                <svg viewBox="0 0 400 300" style="width: 100%; height: auto;">
+                    <text x="50" y="280" class="svg-text">Q</text>
+                    <text x="200" y="280" class="svg-text">K</text>
+                    <text x="350" y="280" class="svg-text">V</text>
+
+                    <path d="M 50,260 L 100,200" class="svg-line" />
+                    <path d="M 200,260 L 140,200" class="svg-line" />
+                    <path d="M 350,260 L 300,120" class="svg-line" />
+
+                    <rect x="100" y="160" width="40" height="40" class="svg-node" />
+                    <text x="120" y="180" class="svg-text">matmul</text>
+
+                    <path d="M 120,160 L 120,130" class="svg-line" />
+                    <rect x="100" y="100" width="40" height="30" class="svg-node" />
+                    <text x="120" y="115" class="svg-text">scale</text>
+
+                    <path d="M 120,100 L 120,70" class="svg-line" />
+                    <rect x="90" y="40" width="60" height="30" class="svg-node" style="rx: 15;" />
+                    <text x="120" y="55" class="svg-text">softmax</text>
+
+                    <path d="M 150,55 L 260,55 L 280,80" class="svg-line" />
+                    <path d="M 300,120 L 300,80" class="svg-line" />
+
+                    <circle cx="300" cy="60" r="20" class="svg-node" />
+                    <text x="300" y="60" class="svg-text">×</text>
+
+                    <path d="M 300,40 L 300,10" class="svg-line" />
+                    <text x="300" y="5" class="svg-text" style="font-weight: bold;">OUT</text>
+
+                    <circle cx="0" cy="0" r="4" class="flow-packet" id="signal-dot" style="opacity: 0;" />
+                </svg>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- AuraFX 框架 JS -->
+<script src="../js/aurafx.js"></script>
+<script src="../js/swiss-extensions.js"></script>
+</body>
+</html>

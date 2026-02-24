@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+*.log
+
+# Temporary
+*.tmp
+*.bak
+*.backup
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+*.old

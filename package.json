@@ -1,0 +1,43 @@
+{
+  "name": "@aurafx/core",
+  "version": "1.0.0",
+  "description": "现代化教学网页设计框架 - 极简、优雅、功能完整",
+  "main": "js/aurafx.js",
+  "style": "css/aurafx.css",
+  "files": [
+    "css",
+    "js",
+    "examples"
+  ],
+  "keywords": [
+    "ui",
+    "framework",
+    "design-system",
+    "教学",
+    "教育",
+    "玻璃态",
+    "瑞士设计",
+    "中文"
+  ],
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "npm run build:css:core && npm run build:css:swiss && npm run build:css:glass",
+    "build:css:core": "cssnano css/aurafx.css css/aurafx.min.css",
+    "build:css:swiss": "cssnano css/swiss-extensions.css css/swiss-extensions.min.css",
+    "build:css:glass": "cssnano css/glass-effects-extensions.css css/glass-effects-extensions.min.css",
+    "build:js": "npm run build:js:core && npm run build:js:swiss && npm run build:js:glass",
+    "build:js:core": "terser js/aurafx.js -o js/aurafx.min.js -c -m",
+    "build:js:swiss": "terser js/swiss-extensions.js -o js/swiss-extensions.min.js -c -m",
+    "build:js:glass": "terser js/glass-effects-extensions.js -o js/glass-effects-extensions.min.js -c -m"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/aurafx"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "cssnano-cli": "^1.0.5",
+    "terser": "^5.36.0"
+  }
+}

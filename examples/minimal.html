@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-cursor="system">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>我的课程 - AuraFX</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- KaTeX (可选，如果需要数学公式) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- AuraFX 框架 CSS -->
+    <link rel="stylesheet" href="../css/aurafx.css">
+</head>
+
+<body>
+<!-- 背景装饰 -->
+<div class="ambient" aria-hidden="true">
+    <canvas id="flow-canvas"></canvas>
+    <div class="glow glow-a"></div>
+    <div class="glow glow-b"></div>
+    <div class="glow glow-c"></div>
+</div>
+<div id="cursor" aria-hidden="true"></div>
+<div class="progress" id="prog" aria-hidden="true"></div>
+
+<!-- 导航栏 -->
+<nav class="nav" id="nav">
+    <div class="nav-inner">
+        <div class="nav-brand">
+            我的课程
+        </div>
+        <div class="flex items-center gap-10">
+            <button class="toggle-pill ix" id="themeBtn" type="button" data-af="theme-toggle">
+                <span class="t-cap" id="themeLabel">Light</span>
+                <span class="switch"></span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- 主内容 -->
+<section class="section minh-100 pt-nav">
+    <div class="wrap">
+        <div class="rv">
+            <span class="tag tag-blue">第一章</span>
+            <h1 class="t-d mb-22">
+                课程<span class="t-grad">标题</span>
+            </h1>
+            <p class="t-body mw-680 mb-22">
+                这是课程描述内容。使用 AuraFX 框架，你只需要写内容，所有样式和交互都已经准备好了。
+            </p>
+        </div>
+
+        <!-- 卡片示例 -->
+        <div class="grid-3 stg mt-22">
+            <div class="card ix">
+                <div class="icon-box" style="background:var(--blue-l);color:var(--brand)">1</div>
+                <div class="t-h2 mb-6">知识点一</div>
+                <p style="font-size:.9rem;color:var(--muted)">这是知识点描述</p>
+            </div>
+
+            <div class="card-spot ix">
+                <div class="icon-box" style="background:var(--emerald-l);color:var(--ok)">2</div>
+                <div class="t-h2 mb-6">知识点二</div>
+                <p style="font-size:.9rem;color:var(--muted)">鼠标悬停有聚光灯效果</p>
+            </div>
+
+            <div class="card-glow ix">
+                <div class="icon-box" style="background:var(--violet-l);color:var(--brand2)">3</div>
+                <div class="t-h2 mb-6">知识点三</div>
+                <p style="font-size:.9rem;color:var(--muted)">顶部渐变发光效果</p>
+            </div>
+        </div>
+
+        <!-- 代码示例 -->
+        <div class="mt-22">
+            <div class="code-win">
+                <div class="mac-bar">
+                    <div class="mac-dot dot-r"></div>
+                    <div class="mac-dot dot-y"></div>
+                    <div class="mac-dot dot-g"></div>
+                    <div class="mac-title">example.py</div>
+                </div>
+                <div class="code-body">
+                    <span class="cline"><span class="ck">def</span> <span class="cf">hello</span>():</span>
+                    <span class="cline">    <span class="ck">print</span>(<span class="cs">"Hello AuraFX!"</span>)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 按钮示例 -->
+        <div class="flex gap-12 wrapline mt-22">
+            <button class="btn" data-tone="primary" data-af="toast" data-tone="ok" data-title="成功" data-desc="这是一个提示消息">
+                主按钮
+            </button>
+            <button class="btn" data-tone="outline" data-af="toast" data-tone="info" data-title="信息" data-desc="点击按钮触发提示">
+                次要按钮
+            </button>
+            <button class="btn-brutal" data-af="toast" data-tone="warn" data-title="警告" data-desc="Brutal 风格按钮">
+                Brutal 按钮
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Toast 容器 -->
+<div class="toast-root" id="toastRoot"></div>
+
+<!-- AuraFX 框架 JS -->
+<script src="../js/aurafx.js"></script>
+</body>
+</html>
